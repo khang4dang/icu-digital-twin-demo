@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICU Digital Twin Student Demo</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --panel-2: #eef4ff;
+      --text: #172033;
+      --muted: #5f6f89;
+      --line: #dce5f2;
+      --blue: #285da8;
+      --blue-2: #4b7fd4;
+      --green: #287a54;
+      --yellow: #a66a00;
+      --red: #b72b36;
+      --purple: #6f3ca6;
+      --shadow: 0 14px 35px rgba(24, 40, 72, 0.11);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: #0f1d33;
+      color: white;
+      padding: 26px 20px;
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #75aaff, #9ce5c6);
+      color: #0f1d33;
+      font-weight: 900;
+      font-size: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.15;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: #b8c8e8;
+      font-size: 13px;
+    }
+
+    .nav-group-title {
+      margin: 24px 8px 10px;
+      color: #8ca2c7;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+
+    nav button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #d7e4fb;
+      padding: 12px 12px;
+      border-radius: 14px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    nav button:hover, nav button.active {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+
+    .sidebar-note {
+      margin-top: 24px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 18px;
+      color: #d2def5;
+      font-size: 13px;
+      line-height: 1.45;
+      background: rgba(255,255,255,0.06);
+    }
+
+    main {
+      padding: 28px;
+      max-width: 1420px;
+      width: 100%;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: clamp(26px, 3vw, 42px);
+      letter-spacing: -0.04em;
+    }
+
+    .topbar p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: white;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .section { display: none; animation: fade 0.22s ease-out; }
+    .section.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .grid { display: grid; gap: 18px; }
+    .grid.two { grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .card.soft { background: linear-gradient(180deg, #ffffff, #f8fbff); }
+    .card.blue { background: linear-gradient(145deg, #eef5ff, #ffffff); }
+    .card.green { background: linear-gradient(145deg, #edfff6, #ffffff); }
+    .card.yellow { background: linear-gradient(145deg, #fff8e8, #ffffff); }
+    .card.red { background: linear-gradient(145deg, #fff0f1, #ffffff); }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .card h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+
+    .lead {
+      font-size: 19px !important;
+      color: #31415f !important;
+      line-height: 1.55 !important;
+    }
+
+    .big-number {
+      font-size: 44px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .hero-visual {
+      min-height: 430px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(75,127,212,0.22), transparent 35%),
+        radial-gradient(circle at 78% 20%, rgba(40,122,84,0.18), transparent 30%),
+        linear-gradient(145deg, #ffffff, #edf5ff);
+    }
+
+    .twin-flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 24px;
+    }
+
+    .flow-step {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 15px;
+      min-height: 145px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .flow-step .icon { font-size: 34px; }
+    .flow-step strong { font-size: 15px; }
+    .flow-step span { color: var(--muted); font-size: 12px; line-height: 1.35; }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 15px;
+      background: var(--blue);
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 9px 20px rgba(40, 93, 168, 0.22);
+    }
+    .btn.secondary {
+      background: white;
+      color: var(--blue);
+      border: 1px solid #c8d8f4;
+      box-shadow: none;
+    }
+    .btn.green { background: var(--green); box-shadow: 0 9px 20px rgba(40,122,84,0.18); }
+    .btn.yellow { background: #94610a; box-shadow: 0 9px 20px rgba(166,106,0,0.18); }
+    .btn.red { background: var(--red); box-shadow: 0 9px 20px rgba(183,43,54,0.18); }
+    .btn:hover { filter: brightness(0.96); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .select, input[type="range"] { width: 100%; }
+    .select {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: white;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .slider-card {
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    input[type="range"] { accent-color: var(--blue); }
+
+    .chart-wrap {
+      min-height: 330px;
+      position: relative;
+    }
+
+    svg.chart {
+      width: 100%;
+      height: 330px;
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: white;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .status-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px;
+      background: white;
+    }
+
+    .status-item span { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    .status-item strong { display: block; font-size: 22px; margin-top: 5px; }
+
+    .risk-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .risk-low { color: #145d3f; background: #e7f8ef; }
+    .risk-med { color: #835100; background: #fff1d6; }
+    .risk-high { color: #941d28; background: #ffe5e8; }
+
+    .score-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: white;
+      cursor: pointer;
+    }
+    .score-card:hover { border-color: #a7bee7; }
+    .score-top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .score-value { font-size: 28px; font-weight: 900; }
+    .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #e8eef8;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .bar-fill { height: 100%; border-radius: 999px; width: 0%; background: var(--green); transition: width .2s ease; }
+    .bar-fill.med { background: #d98c13; }
+    .bar-fill.high { background: var(--red); }
+    .explain-box {
+      border-radius: 18px;
+      border: 1px dashed #b6c6de;
+      background: #fbfdff;
+      padding: 16px;
+      color: var(--muted);
+      min-height: 98px;
+    }
+
+    .meter {
+      height: 28px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4cbb7c, #f1c15b, #e25f68);
+      position: relative;
+      margin: 16px 0 8px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+    }
+    .needle {
+      position: absolute;
+      top: -7px;
+      width: 4px;
+      height: 42px;
+      background: #111827;
+      border-radius: 999px;
+      left: 10%;
+      transition: left .22s ease;
+    }
+
+    .intervention-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .intervention-btn {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: white;
+      padding: 16px;
+      border-radius: 18px;
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .intervention-btn small { display:block; color: var(--muted); font-weight: 600; margin-top:5px; line-height:1.35; }
+    .intervention-btn:hover, .intervention-btn.selected { border-color: #7198d8; background: #f4f8ff; }
+
+    .delta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+    .delta-table th, .delta-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 14px;
+    }
+    .delta-table th { background: #f4f7fb; color: #465875; }
+    .delta-table tr:last-child td { border-bottom: 0; }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0,1fr));
+      gap: 12px;
+    }
+    .pipe-card {
+      position: relative;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 154px;
+    }
+    .pipe-card .num {
+      width: 30px; height: 30px; border-radius: 10px;
+      background: #e9f1ff; color: var(--blue); display:grid; place-items:center;
+      font-weight:900; margin-bottom: 12px;
+    }
+    .pipe-card strong { display:block; margin-bottom: 7px; }
+    .pipe-card span { color: var(--muted); font-size: 12px; line-height: 1.35; }
+
+    .mini-model {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .weight-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 50px;
+      gap: 10px;
+      align-items: center;
+      margin: 12px 0;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .ethics-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: white;
+      min-height: 210px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .ethics-card .emoji { font-size: 34px; }
+
+    .vote-option {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: white;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .vote-option:hover { border-color: #7198d8; }
+
+    .note-box {
+      padding: 14px 16px;
+      background: #f4f8ff;
+      border: 1px solid #d8e6fb;
+      border-radius: 16px;
+      color: #385273;
+      line-height: 1.55;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #0f1d33;
+      color: #eaf2ff;
+      padding: 16px;
+      border-radius: 18px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .hidden { display:none !important; }
+
+    .speaker-note {
+      border-left: 4px solid var(--purple);
+      background: #faf5ff;
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin-top: 14px;
+      color: #563174;
+      line-height: 1.55;
+      display: none;
+    }
+    body.show-notes .speaker-note { display:block; }
+
+    .footer-space { height: 50px; }
+
+    @media (max-width: 1050px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: relative; height: auto; }
+      nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+      .hero, .grid.two, .mini-model { grid-template-columns: 1fr; }
+      .grid.three, .grid.four, .pipeline, .twin-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar { flex-direction: column; align-items:flex-start; }
+      .pill-row { justify-content:flex-start; }
+    }
+
+    @media (max-width: 640px) {
+      main { padding: 16px; }
+      .grid.three, .grid.four, .pipeline, .twin-flow, .intervention-grid, .status-grid { grid-template-columns: 1fr; }
+      nav { grid-template-columns: 1fr; }
+      .weight-row { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      aside, .btn-row, nav, .slider-card, .intervention-grid { display:none !important; }
+      .app { display:block; }
+      .section { display:block !important; break-inside: avoid; }
+      .card { box-shadow:none; }
+      main { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="brand-mark">DT</div>
+        <div>
+          <h1>ICU Digital Twin Demo</h1>
+          <p>Interactive interface</p>
+        </div>
+      </div>
+
+      <div class="nav-group-title">Presentation path</div>
+      <nav aria-label="Demo navigation">
+        <button class="active" data-section="welcome">🏥 Welcome</button>
+        <button data-section="icuData">🫀 Nature of ICU Data</button>
+        <button data-section="predictiveAI">📡 Why Predictive AI/ML?</button>
+        <button data-section="digitalTwinConcept">🧬 ICU Digital Twin Concept</button>
+        <button data-section="timeline">📈 Patient Timeline</button>
+        <button data-section="abnormality">🚦 Abnormality Scores</button>
+        <button data-section="criticality">⚠️ Patient Criticality</button>
+        <button data-section="intervention">🧪 Guide Interventions</button>
+        <button data-section="learning">🤖 How AI Learns</button>
+        <button data-section="ethics">⚖️ Ethics Discussion</button>
+      </nav>
+
+      <div class="sidebar-note">
+        <strong>Note:</strong><br />
+        This demo uses simplified, de-identified teaching patterns inspired by ICU data. It is not a clinical tool and should not be used for medical decisions.
+      </div>
+
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h2 id="sectionTitle">AI for ICU Digital Twins</h2>
+          <p id="sectionSubtitle">A journey from ICU data to patient-specific decision support.</p>
+        </div>
+        <div class="pill-row">
+          <span class="pill">Audience: Pringry High School</span>
+          <span class="pill">Part of the course: Explorations in Artificial Intelligence</span>
+          <span class="pill">Visit date: May 27</span>
+        </div>
+      </div>
+
+      <section id="welcome" class="section active" data-title="AI for ICU Digital Twins" data-subtitle="A student-friendly journey from ICU data to patient-specific decision support.">
+        <div class="hero">
+          <div class="card hero-visual">
+            <h3>What is an ICU digital twin?</h3>
+            <p class="lead">A digital twin is a virtual patient model that updates as new ICU data arrive. It helps clinicians notice patterns, estimate risk, and think through possible next steps.</p>
+            <div class="twin-flow" aria-label="Digital twin flow diagram">
+              <div class="flow-step"><div class="icon">🧍</div><strong>Real patient</strong><span>Patient in the ICU with changing health status.</span></div>
+              <div class="flow-step"><div class="icon">📟</div><strong>ICU data</strong><span>Vitals, labs, treatments, alarms, and notes.</span></div>
+              <div class="flow-step"><div class="icon">🧠</div><strong>AI model</strong><span>Learns patterns from many previous ICU stays.</span></div>
+              <div class="flow-step"><div class="icon">🚦</div><strong>Scores</strong><span>Abnormality and criticality signals.</span></div>
+              <div class="flow-step"><div class="icon">👩‍⚕️</div><strong>Clinician</strong><span>Uses AI as support, not replacement.</span></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn" onclick="goTo('icuData')">Start with ICU data</button>
+              <button class="btn secondary" onclick="goTo('timeline')">Jump to patient demo</button>
+              <button class="btn secondary" onclick="goTo('ethics')">Jump to ethics questions</button>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="card blue">
+              <h3>The main story</h3>
+              <p>A patient starts relatively stable, then becomes unstable. We move through time, observe changes, and see how an AI digital twin summarizes risk.</p>
+            </div>
+            <div class="card green">
+              <h3>Our role</h3>
+              <p>We act like a care team observer: we inspect the dashboard, choose possible interventions, and discuss what AI should and should not do.</p>
+            </div>
+            <div class="card yellow">
+              <h3>Core topics we will cover</h3>
+              <ul>
+                <li><strong>Nature of ICU data:</strong> messy, time-based, multi-source, and clinically contextual.</li>
+                <li><strong>Need for AI/ML predictive analytics:</strong> earlier warning, less information overload, and better preparation for adverse outcomes.</li>
+                <li><strong>ICU digital twins:</strong> patient-specific virtual models that predict risk and help clinicians reason about possible interventions.</li>
+                <li><strong>Human oversight:</strong> AI supports clinical judgment; it does not replace it.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="speaker-note">
+          Opening script: “Today we’ll look at three connected ideas: first, what ICU data look like; second, why AI and machine learning are useful for predicting deterioration and improving ICU outcomes; and third, how a digital twin can act like a changing virtual patient that helps clinicians think about adverse events and possible interventions.”
+        </div>
+      </section>
+
+      <section id="icuData" class="section" data-title="Nature of ICU Data" data-subtitle="ICU data are rich, messy, time-based, and tied to clinical decisions.">
+        <div class="grid two">
+          <div class="card soft">
+            <h3>What data are collected in an ICU?</h3>
+            <p class="lead">ICU data are not one clean spreadsheet. They come from monitors, lab tests, medication records, procedures, alarms, and clinical documentation.</p>
+            <div class="grid two" style="margin-top:16px">
+              <button class="intervention-btn" onclick="dataLayer('vitals')">📈 Vitals<small>Heart rate, blood pressure, oxygen, breathing.</small></button>
+              <button class="intervention-btn" onclick="dataLayer('labs')">🧪 Labs<small>Lactate, creatinine, blood counts, chemistry.</small></button>
+              <button class="intervention-btn" onclick="dataLayer('actions')">💉 Interventions<small>Fluids, vasopressors, ventilation, antibiotics.</small></button>
+              <button class="intervention-btn" onclick="dataLayer('outcomes')">🎯 Outcomes<small>Deterioration, escalation, discharge, death.</small></button>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="card blue">
+              <h3>Current data layer</h3>
+              <div id="dataLayerExplain" class="explain-box">
+                Click a data layer. A key point is that ICU data are longitudinal: the timing, trend, and context often matter as much as the value itself.
+              </div>
+            </div>
+            <div class="card yellow">
+              <h3>Why ICU data are hard for AI</h3>
+              <ul>
+                <li><strong>Irregular:</strong> not every variable is measured every hour.</li>
+                <li><strong>Missing:</strong> absence of a measurement may mean “not needed,” not “normal.”</li>
+                <li><strong>Noisy:</strong> sensors, charting delays, and unit differences can create artifacts.</li>
+                <li><strong>Contextual:</strong> a value may be normal for one patient but worrying for another.</li>
+                <li><strong>Action-influenced:</strong> treatments change the future data, so prediction and decision-making are connected.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid three" style="margin-top:18px">
+          <div class="card green"><h3>Time matters</h3><p>One low blood pressure value is useful, but the pattern over the last few hours is often more informative.</p></div>
+          <div class="card yellow"><h3>Multiple signals matter</h3><p>Blood pressure, heart rate, lactate, oxygen, urine output, and interventions need to be interpreted together.</p></div>
+          <div class="card red"><h3>Data are not decisions</h3><p>Raw data do not directly tell us what to do. Clinicians interpret data using physiology, experience, and patient context.</p></div>
+        </div>
+
+        <div class="speaker-note">
+          Teaching script: “Before talking about AI, we need to understand the data. ICU data are like a fast-moving movie, not a single photo. Values appear at different times, some are missing, and many are affected by what clinicians already did.”
+        </div>
+      </section>
+
+      <section id="predictiveAI" class="section" data-title="Need for AI/ML Predictive Analytics" data-subtitle="Predictive analytics can help turn complex ICU data into earlier, more usable warning signals.">
+        <div class="grid two">
+          <div class="card soft">
+            <h3>Why prediction matters in the ICU</h3>
+            <p class="lead">The ICU is a high-stakes environment where small changes can become serious quickly. AI/ML can help detect patterns that suggest a patient may deteriorate before the situation is obvious.</p>
+            <div class="pipeline" style="margin-top:16px">
+              <div class="pipe-card"><div class="num">1</div><strong>Observe</strong><span>Collect changing patient data.</span></div>
+              <div class="pipe-card"><div class="num">2</div><strong>Predict</strong><span>Estimate risk of adverse events.</span></div>
+              <div class="pipe-card"><div class="num">3</div><strong>Alert</strong><span>Prioritize who needs attention.</span></div>
+              <div class="pipe-card"><div class="num">4</div><strong>Prepare</strong><span>Give teams more time to respond.</span></div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="card blue">
+              <h3>Examples of adverse events</h3>
+              <ul>
+                <li>Shock-like deterioration and low blood pressure</li>
+                <li>Respiratory failure or need for ventilation escalation</li>
+                <li>Sepsis-like worsening or rising lactate</li>
+                <li>Kidney injury, low urine output, or need for dialysis</li>
+                <li>ICU mortality, readmission, or prolonged length of stay</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>Potential impact on ICU outcomes</h3>
+              <p>Good predictive analytics may help clinicians identify deterioration earlier, focus attention on high-risk patients, reduce avoidable delays, and evaluate whether interventions are followed by improvement.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid three" style="margin-top:18px">
+          <div class="card green"><h3>Earlier warning</h3><p>Prediction can create a useful time window before a crisis becomes severe.</p></div>
+          <div class="card yellow"><h3>Less overload</h3><p>AI can summarize many signals into a small number of reviewable indicators.</p></div>
+          <div class="card red"><h3>Careful use</h3><p>A prediction is not automatically a treatment plan. False alarms, missed warnings, and bias must be evaluated.</p></div>
+        </div>
+
+        <div class="speaker-note">
+          Teaching script: “The goal is not to say the AI knows the future. The goal is to use past patterns to estimate risk early enough that clinicians can check the patient, prepare, and intervene sooner when appropriate.”
+        </div>
+      </section>
+
+      <section id="digitalTwinConcept" class="section" data-title="Digital Twins in an ICU Setting" data-subtitle="A patient-specific virtual model that updates with ICU data, predicts adverse effects, and helps guide interventions.">
+        <div class="grid two">
+          <div class="card soft">
+            <h3>From prediction model to digital twin</h3>
+            <p class="lead">A normal predictive model may answer: “What is the risk?” An ICU digital twin adds a patient-specific, time-updating representation: “How is this patient changing, what adverse event may be coming, and what responses should we watch after an intervention?”</p>
+            <div class="twin-flow" aria-label="ICU digital twin concept flow">
+              <div class="flow-step"><div class="icon">🫀</div><strong>Patient state</strong><span>Current vitals, labs, and recent trajectory.</span></div>
+              <div class="flow-step"><div class="icon">🔄</div><strong>Update</strong><span>New data refresh the virtual patient over time.</span></div>
+              <div class="flow-step"><div class="icon">⚠️</div><strong>Predict</strong><span>Estimate adverse-event risk and instability.</span></div>
+              <div class="flow-step"><div class="icon">🧪</div><strong>Intervene</strong><span>Clinicians choose actions and monitor response.</span></div>
+              <div class="flow-step"><div class="icon">📚</div><strong>Learn</strong><span>Across patients, study which patterns precede response.</span></div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="card blue">
+              <h3>Three outputs for this project</h3>
+              <ol>
+                <li><strong>Measurement abnormality:</strong> which variables look unusual right now?</li>
+                <li><strong>Patient criticality:</strong> is the overall patient state becoming unstable?</li>
+                <li><strong>Intervention response:</strong> after an action, does the patient improve, worsen, or stay unstable?</li>
+              </ol>
+            </div>
+            <div class="card yellow">
+              <h3>Digital twin vs. replacement doctor</h3>
+              <p>The digital twin is decision support. It can organize data, estimate risk, and show possible response patterns, but final clinical judgment remains with clinicians.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card green" style="margin-top:18px">
+          <h3>Analogy</h3>
+          <p class="lead">Think of the digital twin as a continuously updating “patient dashboard plus simulator.” It watches the patient’s data, warns when the pattern looks risky, and helps the team ask: “What should we check next, and what would count as improvement?”</p>
+          <div class="btn-row">
+            <button class="btn" onclick="goTo('timeline')">See the patient timeline</button>
+            <button class="btn secondary" onclick="goTo('intervention')">Try intervention guidance</button>
+          </div>
+        </div>
+
+        <div class="speaker-note">
+          Teaching script: “For this visit, I would define an ICU digital twin as a virtual patient state that keeps updating with ICU data. It predicts adverse changes and helps clinicians reason about interventions, but it does not make the final decision by itself.”
+        </div>
+      </section>
+
+      <section id="timeline" class="section" data-title="Patient Timeline" data-subtitle="Move through time and watch the patient’s state change.">
+        <div class="grid two">
+          <div class="card soft">
+            <h3>Explore one ICU stay</h3>
+            <p>Use the hour slider to move through a simplified ICU timeline. The chart and patient card update together.</p>
+            <div class="slider-card">
+              <label for="patientSelect"><strong>Choose a teaching case</strong></label><br /><br />
+              <select id="patientSelect" class="select" aria-label="Choose patient case">
+                <option value="A">Patient A: shock-like state, responds to fluids</option>
+                <option value="B">Patient B: shock-like state, needs vasopressor support</option>
+              </select>
+              <br /><br />
+              <label for="hourSlider"><strong>Hour: <span id="hourLabel">0</span></strong></label>
+              <input id="hourSlider" type="range" min="0" max="48" value="0" step="1" aria-label="ICU timeline hour" />
+              <div class="chart-legend" id="timelineLegend"></div>
+            </div>
+            <div class="chart-wrap" style="margin-top:16px">
+              <svg id="timelineChart" class="chart" role="img" aria-label="Line chart of ICU measurements over time"></svg>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="card blue">
+              <div style="display:flex; justify-content:space-between; gap:14px; align-items:flex-start">
+                <div>
+                  <h3>Patient status at hour <span id="statusHour">0</span></h3>
+                  <p id="caseDescription">A simplified patient trajectory for teaching.</p>
+                </div>
+                <span id="statusRiskPill" class="risk-label risk-low">Low concern</span>
+              </div>
+              <div class="status-grid" id="statusGrid" style="margin-top:12px"></div>
+            </div>
+
+            <div class="card green">
+              <h3>Digital twin summary</h3>
+              <p id="twinSummary" class="lead">The patient appears stable at this hour.</p>
+              <div class="note-box" id="timelineTeachingPrompt">What changes would worry you first?</div>
+            </div>
+
+            <div class="card yellow">
+              <h3>Discussion prompt</h3>
+              <p>At which hour does this patient start to look unstable? Why?</p>
+              <div class="btn-row">
+                <button class="btn secondary" onclick="setHour(12)">Jump to hour 12</button>
+                <button class="btn secondary" onclick="setHour(20)">Jump to hour 20</button>
+                <button class="btn secondary" onclick="setHour(30)">Jump to hour 30</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="speaker-note">
+          Suggested interaction: Ask students to call out the first concerning sign before revealing the summary. Then point out that the AI is not looking at one value alone. It combines blood pressure, heart rate, lactate, oxygen, urine output, and recent trends.
+        </div>
+      </section>
+
+      <section id="abnormality" class="section" data-title="Measurement-Level Abnormality" data-subtitle="Not every warning comes from a simple normal range.">
+        <div class="grid two">
+          <div class="card soft">
+            <h3>How unusual is each measurement right now?</h3>
+            <p>Click a measurement card to explain why the digital twin marks it as low, medium, or high abnormality.</p>
+            <div class="note-box" style="margin-bottom:14px">Currently using <strong id="abnPatientLabel">Patient A</strong> at <strong>hour <span id="abnHourLabel">0</span></strong>. You can change the patient and hour from the timeline section.</div>
+            <div class="grid two" id="abnormalityCards"></div>
+          </div>
+          <div class="grid">
+            <div class="card blue">
+              <h3>Why this matters</h3>
+              <p class="lead">A value can be concerning because it is outside a usual range, changing quickly, or surprising for this specific patient.</p>
+            </div>
+            <div class="card green">
+              <h3>Explanation</h3>
+              <div id="abnormalityExplain" class="explain-box">Click a measurement card to see the explanation.</div>
+            </div>
+            <div class="card yellow">
+              <h3>Three ways AI can notice trouble</h3>
+              <ul>
+                <li><strong>Range:</strong> Is the value too high or too low?</li>
+                <li><strong>Trend:</strong> Is the value getting worse over time?</li>
+                <li><strong>Context:</strong> Is it surprising given the patient’s recent history?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="speaker-note">
+          Plain-language line: “Think of measurement abnormality as warning lights on a car dashboard. One warning light matters, but the bigger question is what the whole dashboard says together.”
+        </div>
+      </section>
+
+      <section id="criticality" class="section" data-title="Patient-Level Criticality" data-subtitle="From many abnormal measurements to one overall instability signal.">
+        <div class="grid two">
+          <div class="card soft">
+            <h3>Patient criticality score</h3>
+            <p>This score summarizes whether the overall patient state is becoming unstable. It is not a diagnosis; it is an early-warning signal.</p>
+            <div class="big-number"><span id="riskScoreText">0</span><span style="font-size:22px;color:var(--muted)"> / 100</span></div>
+            <div class="meter" aria-label="Criticality meter"><div id="riskNeedle" class="needle"></div></div>
+            <div style="display:flex; justify-content:space-between; color:var(--muted); font-weight:800; font-size:13px"><span>Low</span><span>Medium</span><span>High</span></div>
+            <p id="criticalityNarrative" class="lead" style="margin-top:18px">The patient currently appears low risk in this teaching example.</p>
+          </div>
+          <div class="card">
+            <h3>Risk over time</h3>
+            <svg id="riskChart" class="chart" role="img" aria-label="Line chart of criticality score over time"></svg>
+            <div class="chart-legend"><span><span class="legend-dot" style="background:#b72b36"></span>Criticality score</span><span><span class="legend-dot" style="background:#111827"></span>Current hour</span></div>
+          </div>
+        </div>
+
+        <div class="grid three" style="margin-top:18px">
+          <div class="card blue"><h3>Measurement score</h3><p>Asks: “Is this one value unusual?” Example: MAP is low, lactate is high.</p></div>
+          <div class="card green"><h3>Patient score</h3><p>Asks: “Is the whole patient becoming unstable?” It combines many signals and trends.</p></div>
+          <div class="card yellow"><h3>Clinical use</h3><p>Asks: “Should someone look closer?” It should support human review, not make final decisions alone.</p></div>
+        </div>
+        <div class="speaker-note">
+          Suggested prompt: “Why might a single high heart rate not always mean the patient is critically ill? What other information would you want?”
+        </div>
+      </section>
+
+      <section id="intervention" class="section" data-title="Guiding ICU Interventions" data-subtitle="A simple shock-response simulation for trial-and-adjust decision-making.">
+        <div class="grid two">
+          <div class="card soft">
+            <h3>Scenario: low blood pressure</h3>
+            <p>The patient has a shock-like unstable state: low MAP, fast heart rate, rising lactate, and low urine output. What might the care team try first?</p>
+            <div class="note-box" style="margin-bottom:14px"><strong>Simplification:</strong> Real ICU decisions depend on many details. This activity is only to illustrate how clinicians try an action, observe response, and adjust.</div>
+            <div class="intervention-grid" id="interventionButtons"></div>
+          </div>
+          <div class="grid">
+            <div class="card blue">
+              <h3>Response after 2 hours</h3>
+              <div id="interventionResult"><p class="lead">Choose an intervention to see a simulated response.</p></div>
+            </div>
+            <div class="card green">
+              <h3>What AI could eventually study</h3>
+              <p>Across many ICU stays, AI can look for patterns: which patients improved after fluids, which needed vasopressors, and which signs appeared before response or non-response.</p>
+            </div>
+            <div class="card yellow">
+              <h3>Future direction</h3>
+              <p>This demo stops before reinforcement learning. The next research step could model sequences of decisions: action → response → adjustment → outcome.</p>
+            </div>
+          </div>
+        </div>
+        <div class="speaker-note">
+          Ask students to vote before clicking. Emphasize that the goal is not to teach medicine; the goal is to show uncertainty, feedback, and sequential decision-making.
+        </div>
+      </section>
+
+      <section id="learning" class="section" data-title="How the AI Learns" data-subtitle="A simple pipeline from raw ICU data to digital twin signals.">
+        <div class="card soft">
+          <h3>Research pipeline</h3>
+          <p>For students, the project can be understood as six steps.</p>
+          <div class="pipeline" style="margin-top:16px">
+            <div class="pipe-card"><div class="num">1</div><strong>Collect data</strong><span>Vitals, labs, alarms, medications, procedures, and ICU stay information.</span></div>
+            <div class="pipe-card"><div class="num">2</div><strong>Clean data</strong><span>Remove impossible values, handle missingness, and align measurements over time.</span></div>
+            <div class="pipe-card"><div class="num">3</div><strong>Build timeline</strong><span>Turn messy measurements into hour-by-hour patient states.</span></div>
+            <div class="pipe-card"><div class="num">4</div><strong>Learn patterns</strong><span>The model learns what tends to happen next from many previous ICU stays.</span></div>
+            <div class="pipe-card"><div class="num">5</div><strong>Score abnormality</strong><span>Estimate which measurements are unusual or worsening.</span></div>
+            <div class="pipe-card"><div class="num">6</div><strong>Support review</strong><span>Show useful signals to humans for interpretation and action.</span></div>
+          </div>
+        </div>
+
+        <div class="grid two" style="margin-top:18px">
+          <div class="card blue">
+            <h3>Try building a tiny risk score</h3>
+            <p>This is not the real model. It is a teaching toy: adjust the weights and see how the score changes for the current patient hour.</p>
+            <div class="weight-row"><label for="wMap">Low blood pressure</label><input id="wMap" type="range" min="0" max="100" value="35" /><span id="wMapText">35</span></div>
+            <div class="weight-row"><label for="wHr">Fast heart rate</label><input id="wHr" type="range" min="0" max="100" value="20" /><span id="wHrText">20</span></div>
+            <div class="weight-row"><label for="wLac">High lactate</label><input id="wLac" type="range" min="0" max="100" value="35" /><span id="wLacText">35</span></div>
+            <div class="weight-row"><label for="wUo">Low urine output</label><input id="wUo" type="range" min="0" max="100" value="10" /><span id="wUoText">10</span></div>
+          </div>
+          <div class="card green">
+            <h3>Toy model output</h3>
+            <div class="big-number"><span id="toyScore">0</span><span style="font-size:22px;color:var(--muted)"> / 100</span></div>
+            <p id="toyNarrative" class="lead">Adjust the sliders to see how assumptions change the score.</p>
+            <div class="note-box">Real AI models learn weights from data. But humans still need to ask: Are the data fair? Are the labels reliable? Does the score help clinicians?</div>
+          </div>
+        </div>
+        <div class="speaker-note">
+          Suggested explanation: “In a real model, we do not manually set these weights. The computer learns from examples. But this toy version helps show an important idea: what we choose to measure and emphasize changes the final score.”
+        </div>
+      </section>
+
+      <section id="ethics" class="section" data-title="Ethics Discussion" data-subtitle="Good healthcare AI must be useful, fair, safe, and understandable.">
+        <div class="grid four">
+          <div class="ethics-card"><div><div class="emoji">🔒</div><h3>Privacy</h3><p>ICU data are sensitive. Researchers must protect patient information and avoid exposing identifiers.</p></div><button class="btn secondary" onclick="ethicsPrompt('privacy')">Discussion prompt</button></div>
+          <div class="ethics-card"><div><div class="emoji">⚖️</div><h3>Bias</h3><p>An AI model may work better for some groups than others if the training data are uneven.</p></div><button class="btn secondary" onclick="ethicsPrompt('bias')">Discussion prompt</button></div>
+          <div class="ethics-card"><div><div class="emoji">👩‍⚕️</div><h3>Human oversight</h3><p>AI should support clinicians. It should not silently replace human judgment in high-risk decisions.</p></div><button class="btn secondary" onclick="ethicsPrompt('human')">Discussion prompt</button></div>
+          <div class="ethics-card"><div><div class="emoji">🚨</div><h3>False alarms</h3><p>If AI warns too often, people may ignore it. If it warns too late, it may not help.</p></div><button class="btn secondary" onclick="ethicsPrompt('alarms')">Discussion prompt</button></div>
+        </div>
+
+        <div class="grid two" style="margin-top:18px">
+          <div class="card soft">
+            <h3>Question for students</h3>
+            <p class="lead" id="ethicsQuestion">Should AI be allowed to make the final ICU treatment decision?</p>
+            <div class="vote-option" onclick="vote('human')"><strong>Human only</strong><br /><span style="color:var(--muted)">AI should not recommend treatment.</span></div>
+            <div class="vote-option" onclick="vote('support')"><strong>AI as support</strong><br /><span style="color:var(--muted)">AI can summarize risk and suggest things to review.</span></div>
+            <div class="vote-option" onclick="vote('final')"><strong>AI final decision</strong><br /><span style="color:var(--muted)">AI can decide if it is accurate enough.</span></div>
+          </div>
+          <div class="card blue">
+            <h3>Live class vote</h3>
+            <div id="voteBars"></div>
+            <div class="btn-row"><button class="btn secondary" onclick="resetVotes()">Reset votes</button></div>
+          </div>
+        </div>
+        <div class="speaker-note">
+          Strong wrap-up line: “The hard part of healthcare AI is not only building a model that predicts something. It is building a system people can safely use, question, and correct.”
+        </div>
+      </section>
+
+      <section id="amarel" class="section" data-title="Amarel Data Bridge" data-subtitle="How to replace the embedded teaching data with your real prepared outputs.">
+        <div class="grid two">
+          <div class="card soft">
+            <h3>Recommended safe workflow</h3>
+            <p>Use Amarel to prepare small, de-identified demo files before the visit. Then load them into this interface. Avoid relying on live VPN/database access during the presentation.</p>
+            <ol>
+              <li>Choose 1–3 representative ICU stays or synthetic teaching cases.</li>
+              <li>Export hourly vitals/labs, abnormality scores, and criticality scores.</li>
+              <li>Remove identifiers and shift time to relative hours.</li>
+              <li>Use the exported JSON to replace the <code>demoData</code> object in this HTML file.</li>
+            </ol>
+          </div>
+          <div class="card yellow">
+            <h3>Minimal data schema</h3>
+            <pre>{
+  "patients": {
+    "A": {
+      "label": "Patient A: responds to fluids",
+      "description": "Teaching case summary",
+      "hours": [0, 1, 2, ...],
+      "map": [76, 75, 74, ...],
+      "hr": [86, 88, 90, ...],
+      "spo2": [98, 98, 97, ...],
+      "lactate": [1.1, 1.2, 1.3, ...],
+      "urine": [45, 43, 40, ...],
+      "risk": [8, 9, 12, ...]
+    }
+  }
+}</pre>
+          </div>
+        </div>
+
+        <div class="card blue" style="margin-top:18px">
+          <h3>Example Amarel export command idea</h3>
+          <p>This is a template for your actual pipeline, not a required script. The key is to export a small browser-friendly JSON file.</p>
+          <pre>ssh &lt;netid&gt;@amarel.rutgers.edu
+cd /scratch/&lt;netid&gt;/AID_TWIN_PROJECT
+conda activate aid_twin_py310
+
+python export_student_demo_json.py \
+  --data-root /scratch/khd57/mimiciv/mimiciv_3_1/raw/physionet.org/files/mimiciv/3.1 \
+  --results-root /path/to/aid_twin/results \
+  --output student_demo_data.json \
+  --max-cases 3 \
+  --deidentify \
+  --relative-time</pre>
+        </div>
+
+        <div class="grid three" style="margin-top:18px">
+          <div class="card green"><h3>Use real outputs</h3><p>Abnormality scores, criticality scores, and response labels can come from your current AID-TWIN pipeline.</p></div>
+          <div class="card yellow"><h3>Keep it small</h3><p>For teaching, a few well-chosen trajectories are better than a massive dataset.</p></div>
+          <div class="card red"><h3>Protect privacy</h3><p>Do not show subject IDs, admission IDs, dates, free text, or any raw identifier during the visit.</p></div>
+        </div>
+      </section>
+
+      <div class="footer-space"></div>
+    </main>
+  </div>
+
+  <script>
+    const COLORS = {
+      map: '#285da8', hr: '#b72b36', spo2: '#287a54', lactate: '#6f3ca6', urine: '#a66a00', risk: '#b72b36', current: '#111827'
+    };
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function round(v, d=0) { return Number(v).toFixed(d); }
+
+    function generatePatient(type) {
+      const hours = Array.from({length:49}, (_,i)=>i);
+      const map = [], hr = [], spo2 = [], lactate = [], urine = [], risk = [];
+      for (const h of hours) {
+        let m, r, s, l, u;
+        if (type === 'A') {
+          if (h < 10) { m = 76 - 0.15*h; r = 84 + 0.6*h; s = 98 - 0.02*h; l = 1.1 + 0.03*h; u = 46 - 0.4*h; }
+          else if (h < 22) { m = 74 - 1.45*(h-10); r = 90 + 3.0*(h-10); s = 97 - 0.08*(h-10); l = 1.4 + 0.22*(h-10); u = 42 - 1.5*(h-10); }
+          else { m = 57 + 1.15*(h-22); r = 126 - 1.65*(h-22); s = 96 + 0.02*(h-22); l = 4.1 - 0.12*(h-22); u = 24 + 1.0*(h-22); }
+        } else {
+          if (h < 9) { m = 77 - 0.2*h; r = 86 + 0.7*h; s = 98 - 0.03*h; l = 1.0 + 0.04*h; u = 48 - 0.35*h; }
+          else if (h < 24) { m = 75 - 1.25*(h-9); r = 92 + 2.4*(h-9); s = 97 - 0.16*(h-9); l = 1.5 + 0.25*(h-9); u = 44 - 1.6*(h-9); }
+          else if (h < 32) { m = 56 + 0.15*(h-24); r = 128 + 0.4*(h-24); s = 94 - 0.03*(h-24); l = 5.2 + 0.08*(h-24); u = 20 - 0.35*(h-24); }
+          else { m = 58 + 1.05*(h-32); r = 130 - 1.45*(h-32); s = 94 + 0.09*(h-32); l = 5.8 - 0.16*(h-32); u = 18 + 0.9*(h-32); }
+        }
+        m += Math.sin(h/2.7)*1.0; r += Math.cos(h/3.1)*1.2; s += Math.sin(h/5)*0.35; l += Math.cos(h/4)*0.06; u += Math.sin(h/3.5)*1.0;
+        const riskScore = clamp((70-m)*1.3 + Math.max(0,r-95)*0.42 + Math.max(0,l-1.8)*12 + Math.max(0,35-u)*1.2 + Math.max(0,95-s)*2.8, 5, 95);
+        map.push(+m.toFixed(1)); hr.push(+r.toFixed(0)); spo2.push(+s.toFixed(1)); lactate.push(+l.toFixed(1)); urine.push(+u.toFixed(0)); risk.push(+riskScore.toFixed(0));
+      }
+      return {hours, map, hr, spo2, lactate, urine, risk};
+    }
+
+    const demoData = {
+      patients: {
+        A: {
+          label: 'Patient A: shock-like state, responds to fluids',
+          description: 'This case becomes unstable around hour 14–22, then improves after a fluid-like response pattern.',
+          ...generatePatient('A')
+        },
+        B: {
+          label: 'Patient B: shock-like state, needs vasopressor support',
+          description: 'This case becomes unstable and does not improve much until a vasopressor-like response pattern later.',
+          ...generatePatient('B')
+        }
+      }
+    };
+
+    const metricInfo = {
+      map: {label:'MAP', unit:'mmHg', normal:'Usually concerning when low, especially below about 65 in this teaching demo.', min:50, max:85},
+      hr: {label:'Heart Rate', unit:'bpm', normal:'A fast heart rate may signal stress, pain, fever, bleeding, shock, or other causes.', min:70, max:140},
+      spo2: {label:'SpO₂', unit:'%', normal:'Lower oxygen saturation can be concerning, especially if it drops with other signals.', min:90, max:100},
+      lactate: {label:'Lactate', unit:'mmol/L', normal:'Higher lactate can suggest poor perfusion or severe physiologic stress.', min:0.8, max:6.2},
+      urine: {label:'Urine Output', unit:'mL/hr', normal:'Low urine output can suggest poor kidney perfusion or worsening illness.', min:10, max:55}
+    };
+
+    const interventions = [
+      { key:'fluids', title:'Give fluids', desc:'Try increasing circulating volume.', values:{map:'+9', hr:'-12', lactate:'-0.7', urine:'+12'}, goodA:true, textA:'The patient improves. This pattern suggests fluid responsiveness in the teaching scenario.', textB:'Only mild improvement. The patient may need additional support such as vasopressors or source control.' },
+      { key:'vaso', title:'Start vasopressor', desc:'Support blood pressure with medication.', values:{map:'+12', hr:'-8', lactate:'-0.4', urine:'+5'}, goodA:true, textA:'Blood pressure improves, but this may not address the underlying cause by itself.', textB:'The patient improves more clearly. This pattern suggests pressure support was needed.' },
+      { key:'blood', title:'Give blood products', desc:'Useful if bleeding or low hemoglobin is suspected.', values:{map:'+5', hr:'-5', lactate:'-0.2', urine:'+2'}, goodA:false, textA:'Limited response in this scenario because bleeding is not the main driver.', textB:'Limited response in this scenario. More information would be needed before choosing this.' },
+      { key:'sedation', title:'Reduce sedation', desc:'Consider medication-related low blood pressure.', values:{map:'+4', hr:'+2', lactate:'0.0', urine:'+1'}, goodA:false, textA:'Small change only. This does not look like the main cause in this teaching case.', textB:'Small change only. The patient remains unstable.' },
+      { key:'infection', title:'Treat suspected infection', desc:'Antibiotics/source control if sepsis is suspected.', values:{map:'+3', hr:'-4', lactate:'-0.5', urine:'+3'}, goodA:true, textA:'Slow improvement may occur, but response is not immediate. It matters if infection is likely.', textB:'This may be necessary if sepsis is suspected, but pressure support is still needed now.' },
+      { key:'wait', title:'Wait and monitor', desc:'Observe without immediate active intervention.', values:{map:'-4', hr:'+8', lactate:'+0.6', urine:'-5'}, goodA:false, textA:'The patient worsens. Waiting is risky in this simplified unstable state.', textB:'The patient worsens. The digital twin would keep warning that risk is rising.' }
+    ];
+
+    let currentPatient = 'A';
+    let currentHour = 0;
+    let votes = {human:0, support:0, final:0};
+
+    function goTo(id) {
+      document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.section === id));
+      document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active', s.id === id));
+      const section = document.getElementById(id);
+      document.getElementById('sectionTitle').textContent = section.dataset.title || 'ICU Digital Twin Demo';
+      document.getElementById('sectionSubtitle').textContent = section.dataset.subtitle || '';
+      window.scrollTo({top:0, behavior:'smooth'});
+      updateAll();
+    }
+
+    document.querySelectorAll('nav button').forEach(btn => btn.addEventListener('click', () => goTo(btn.dataset.section)));
+
+
+    document.getElementById('patientSelect').addEventListener('change', e => { currentPatient = e.target.value; updateAll(); });
+    document.getElementById('hourSlider').addEventListener('input', e => { currentHour = Number(e.target.value); updateAll(); });
+
+    function setHour(h) { currentHour = h; document.getElementById('hourSlider').value = h; updateAll(); }
+
+    function patient() { return demoData.patients[currentPatient]; }
+    function getValue(metric, h=currentHour) { return patient()[metric][h]; }
+
+    function riskLevel(score) {
+      if (score < 35) return {name:'Low concern', cls:'risk-low'};
+      if (score < 65) return {name:'Medium concern', cls:'risk-med'};
+      return {name:'High concern', cls:'risk-high'};
+    }
+
+    function drawLineChart(svgId, series, options={}) {
+      const svg = document.getElementById(svgId);
+      if (!svg) return;
+      const width = 860, height = 330, pad = {l:50, r:22, t:22, b:42};
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      const xVals = patient().hours;
+      const yMin = options.yMin ?? Math.min(...series.flatMap(s=>s.data));
+      const yMax = options.yMax ?? Math.max(...series.flatMap(s=>s.data));
+      const x = h => pad.l + (h - 0) / 48 * (width - pad.l - pad.r);
+      const y = v => height - pad.b - (v - yMin) / (yMax - yMin || 1) * (height - pad.t - pad.b);
+      const grid = [];
+      for (let i=0;i<=4;i++) {
+        const yy = pad.t + i*(height-pad.t-pad.b)/4;
+        grid.push(`<line x1="${pad.l}" y1="${yy}" x2="${width-pad.r}" y2="${yy}" stroke="#edf2f8"/>`);
+      }
+      for (const h of [0,12,24,36,48]) {
+        const xx = x(h);
+        grid.push(`<line x1="${xx}" y1="${pad.t}" x2="${xx}" y2="${height-pad.b}" stroke="#f3f6fb"/>`);
+        grid.push(`<text x="${xx}" y="${height-16}" text-anchor="middle" fill="#607089" font-size="12" font-weight="700">${h}h</text>`);
+      }
+      const paths = series.map(s => {
+        const d = xVals.map((h,i)=>`${i===0?'M':'L'} ${x(h).toFixed(1)} ${y(s.data[i]).toFixed(1)}`).join(' ');
+        return `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }).join('');
+      const curX = x(currentHour);
+      const dots = series.map(s=>`<circle cx="${curX}" cy="${y(s.data[currentHour])}" r="5" fill="${s.color}" stroke="white" stroke-width="2"/>`).join('');
+      svg.innerHTML = `
+        <rect x="0" y="0" width="${width}" height="${height}" rx="18" fill="white"/>
+        ${grid.join('')}
+        <line x1="${pad.l}" y1="${height-pad.b}" x2="${width-pad.r}" y2="${height-pad.b}" stroke="#d8e2ef"/>
+        <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${height-pad.b}" stroke="#d8e2ef"/>
+        ${paths}
+        <line x1="${curX}" y1="${pad.t}" x2="${curX}" y2="${height-pad.b}" stroke="${COLORS.current}" stroke-width="2" stroke-dasharray="6 6"/>
+        ${dots}
+        <text x="${pad.l}" y="17" fill="#607089" font-size="12" font-weight="800">${options.label || ''}</text>
+      `;
+    }
+
+    function updateTimeline() {
+      document.getElementById('patientSelect').value = currentPatient;
+      document.getElementById('hourSlider').value = currentHour;
+      document.getElementById('hourLabel').textContent = currentHour;
+      document.getElementById('statusHour').textContent = currentHour;
+      document.getElementById('caseDescription').textContent = patient().description;
+      const status = [
+        ['MAP', `${getValue('map')} mmHg`],
+        ['Heart Rate', `${getValue('hr')} bpm`],
+        ['SpO₂', `${getValue('spo2')}%`],
+        ['Lactate', `${getValue('lactate')} mmol/L`],
+        ['Urine Output', `${getValue('urine')} mL/hr`],
+        ['Criticality', `${getValue('risk')} / 100`]
+      ];
+      document.getElementById('statusGrid').innerHTML = status.map(([k,v])=>`<div class="status-item"><span>${k}</span><strong>${v}</strong></div>`).join('');
+      const lvl = riskLevel(getValue('risk'));
+      const pill = document.getElementById('statusRiskPill');
+      pill.className = `risk-label ${lvl.cls}`;
+      pill.textContent = lvl.name;
+      const risk = getValue('risk');
+      let summary = 'The patient appears stable at this hour.';
+      let prompt = 'What changes would worry you first?';
+      if (risk >= 65) { summary = 'The patient is in a high-concern state. Several measurements are abnormal together, suggesting a shock-like unstable pattern.'; prompt = 'What intervention would you consider, and what response would you watch for?'; }
+      else if (risk >= 35) { summary = 'The patient is becoming more concerning. The digital twin notices worsening trends before everything becomes severe.'; prompt = 'Is one value driving concern, or is it the combination?'; }
+      document.getElementById('twinSummary').textContent = summary;
+      document.getElementById('timelineTeachingPrompt').textContent = prompt;
+      const series = [
+        {name:'MAP', data:patient().map, color:COLORS.map},
+        {name:'Heart Rate', data:patient().hr, color:COLORS.hr},
+        {name:'SpO₂', data:patient().spo2, color:COLORS.spo2},
+        {name:'Lactate x20', data:patient().lactate.map(v=>v*20), color:COLORS.lactate},
+        {name:'Urine Output', data:patient().urine, color:COLORS.urine}
+      ];
+      drawLineChart('timelineChart', series, {yMin:0, yMax:150, label:'Scaled view: lactate is multiplied by 20 so it can be seen with vitals.'});
+      document.getElementById('timelineLegend').innerHTML = series.map(s=>`<span><span class="legend-dot" style="background:${s.color}"></span>${s.name}</span>`).join('');
+    }
+
+    function abnormalityScore(metric) {
+      const v = getValue(metric);
+      let score = 0;
+      if (metric === 'map') score = clamp((70-v)/18, 0, 1);
+      if (metric === 'hr') score = clamp((v-95)/40, 0, 1);
+      if (metric === 'spo2') score = clamp((96-v)/5, 0, 1);
+      if (metric === 'lactate') score = clamp((v-1.8)/3.5, 0, 1);
+      if (metric === 'urine') score = clamp((35-v)/25, 0, 1);
+      const prev = Math.max(0, currentHour-3);
+      const trend = metric === 'map' || metric === 'spo2' || metric === 'urine'
+        ? clamp((patient()[metric][prev] - v) / (metric === 'map' ? 10 : metric === 'spo2' ? 3 : 15), 0, .25)
+        : clamp((v - patient()[metric][prev]) / (metric === 'hr' ? 25 : 1.5), 0, .25);
+      return clamp(score + trend, 0, 1);
+    }
+
+    function updateAbnormality() {
+      document.getElementById('abnPatientLabel').textContent = patient().label;
+      document.getElementById('abnHourLabel').textContent = currentHour;
+      const metrics = ['map','hr','spo2','lactate','urine'];
+      document.getElementById('abnormalityCards').innerHTML = metrics.map(m => {
+        const s = abnormalityScore(m);
+        const level = s < .33 ? 'Low' : s < .66 ? 'Medium' : 'High';
+        const fillClass = s < .33 ? '' : s < .66 ? 'med' : 'high';
+        return `<div class="score-card" onclick="explainAbnormality('${m}')">
+          <div class="score-top"><div><strong>${metricInfo[m].label}</strong><br/><span style="color:var(--muted);font-size:13px">${getValue(m)} ${metricInfo[m].unit}</span></div><div class="score-value">${level}</div></div>
+          <div class="bar"><div class="bar-fill ${fillClass}" style="width:${Math.round(s*100)}%"></div></div>
+        </div>`;
+      }).join('');
+    }
+
+    function explainAbnormality(metric) {
+      const s = abnormalityScore(metric);
+      const value = getValue(metric);
+      const prev = patient()[metric][Math.max(0,currentHour-3)];
+      const direction = value > prev ? 'increased' : value < prev ? 'decreased' : 'stayed about the same';
+      const pct = Math.round(s*100);
+      document.getElementById('abnormalityExplain').innerHTML = `
+        <strong>${metricInfo[metric].label}: ${value} ${metricInfo[metric].unit}</strong><br/><br/>
+        Estimated abnormality: <strong>${pct}/100</strong>. ${metricInfo[metric].normal}<br/><br/>
+        In the last 3 hours, this measurement ${direction} from ${prev} to ${value}. The digital twin uses both the current value and recent trend.
+      `;
+    }
+
+    function updateCriticality() {
+      const risk = getValue('risk');
+      document.getElementById('riskScoreText').textContent = risk;
+      document.getElementById('riskNeedle').style.left = `calc(${risk}% - 2px)`;
+      const lvl = riskLevel(risk);
+      let text = 'The patient currently appears low risk in this teaching example.';
+      if (risk >= 65) text = 'The patient has a high criticality signal. The dashboard suggests the care team should review the patient urgently.';
+      else if (risk >= 35) text = 'The patient has a medium criticality signal. Several trends are moving in a concerning direction.';
+      document.getElementById('criticalityNarrative').textContent = text;
+      drawLineChart('riskChart', [{name:'Risk', data:patient().risk, color:COLORS.risk}], {yMin:0, yMax:100, label:'Criticality score from 0 to 100'});
+    }
+
+    function updateInterventionButtons() {
+      document.getElementById('interventionButtons').innerHTML = interventions.map(i => `
+        <button class="intervention-btn" onclick="chooseIntervention('${i.key}')">${i.title}<small>${i.desc}</small></button>
+      `).join('');
+    }
+
+    function parseDelta(d) { return Number(String(d).replace('+','')); }
+    function chooseIntervention(key) {
+      document.querySelectorAll('.intervention-btn').forEach(btn => btn.classList.remove('selected'));
+      const idx = interventions.findIndex(i=>i.key===key);
+      if (idx >= 0) document.querySelectorAll('.intervention-btn')[idx].classList.add('selected');
+      const i = interventions[idx];
+      const baseHour = currentPatient === 'A' ? 20 : 26;
+      const base = {
+        map: patient().map[baseHour], hr: patient().hr[baseHour], lactate: patient().lactate[baseHour], urine: patient().urine[baseHour]
+      };
+      const after = {
+        map: +(base.map + parseDelta(i.values.map)).toFixed(1),
+        hr: +(base.hr + parseDelta(i.values.hr)).toFixed(0),
+        lactate: +(base.lactate + parseDelta(i.values.lactate)).toFixed(1),
+        urine: +(base.urine + parseDelta(i.values.urine)).toFixed(0)
+      };
+      const good = currentPatient === 'A' ? i.goodA : (key === 'vaso' || key === 'infection');
+      const msg = currentPatient === 'A' ? i.textA : i.textB;
+      document.getElementById('interventionResult').innerHTML = `
+        <span class="risk-label ${good ? 'risk-low' : 'risk-high'}">${good ? 'More favorable response' : 'Limited or poor response'}</span>
+        <table class="delta-table" aria-label="Intervention response table">
+          <thead><tr><th>Measurement</th><th>Before</th><th>After 2 hours</th></tr></thead>
+          <tbody>
+            <tr><td>MAP</td><td>${base.map} mmHg</td><td>${after.map} mmHg</td></tr>
+            <tr><td>Heart Rate</td><td>${base.hr} bpm</td><td>${after.hr} bpm</td></tr>
+            <tr><td>Lactate</td><td>${base.lactate} mmol/L</td><td>${after.lactate} mmol/L</td></tr>
+            <tr><td>Urine Output</td><td>${base.urine} mL/hr</td><td>${after.urine} mL/hr</td></tr>
+          </tbody>
+        </table>
+        <p class="lead">${msg}</p>
+      `;
+    }
+
+    function updateToyModel() {
+      const ids = ['wMap','wHr','wLac','wUo'];
+      ids.forEach(id => document.getElementById(id + 'Text').textContent = document.getElementById(id).value);
+      const wMap = Number(document.getElementById('wMap').value), wHr = Number(document.getElementById('wHr').value), wLac = Number(document.getElementById('wLac').value), wUo = Number(document.getElementById('wUo').value);
+      const total = Math.max(1, wMap + wHr + wLac + wUo);
+      const mapRisk = clamp((70-getValue('map'))/20,0,1);
+      const hrRisk = clamp((getValue('hr')-95)/40,0,1);
+      const lacRisk = clamp((getValue('lactate')-1.8)/4,0,1);
+      const uoRisk = clamp((35-getValue('urine'))/25,0,1);
+      const score = Math.round(100*(wMap*mapRisk + wHr*hrRisk + wLac*lacRisk + wUo*uoRisk)/total);
+      document.getElementById('toyScore').textContent = score;
+      document.getElementById('toyNarrative').textContent = score >= 65 ? 'Your toy score marks this hour as high concern.' : score >= 35 ? 'Your toy score marks this hour as medium concern.' : 'Your toy score marks this hour as low concern.';
+    }
+
+    ['wMap','wHr','wLac','wUo'].forEach(id => document.getElementById(id).addEventListener('input', updateToyModel));
+
+    function dataLayer(kind) {
+      const info = {
+        vitals: `<strong>Vitals:</strong> These are repeated bedside measurements such as heart rate, blood pressure, oxygen saturation, and respiratory rate. They can change minute by minute, so trends are often more useful than single values.`,
+        labs: `<strong>Labs:</strong> Laboratory tests such as lactate, creatinine, glucose, and blood counts are measured less frequently, but they can reveal organ stress, infection risk, or poor perfusion.`,
+        actions: `<strong>Interventions:</strong> Actions such as fluids, vasopressors, antibiotics, ventilation changes, or dialysis affect what happens next. This is why ICU data are not only observational; they are shaped by clinical decisions.`,
+        outcomes: `<strong>Outcomes:</strong> Researchers define outcomes such as deterioration, escalation, adverse events, mortality, or recovery. The choice of outcome changes what the AI model learns to predict.`
+      };
+      document.getElementById('dataLayerExplain').innerHTML = info[kind];
+    }
+
+    function ethicsPrompt(kind) {
+      const q = {
+        privacy: 'What information should never appear in a student demo, even if the data are used for research?',
+        bias: 'What could happen if an AI model works better for one group of patients than another?',
+        human: 'Should clinicians be required to explain when they disagree with an AI warning?',
+        alarms: 'Which is worse: too many false alarms, or one missed warning? Why?'
+      };
+      document.getElementById('ethicsQuestion').textContent = q[kind];
+    }
+
+    function vote(key) { votes[key]++; renderVotes(); }
+    function resetVotes() { votes = {human:0, support:0, final:0}; renderVotes(); }
+    function renderVotes() {
+      const total = Math.max(1, votes.human + votes.support + votes.final);
+      const labels = {human:'Human only', support:'AI as support', final:'AI final decision'};
+      document.getElementById('voteBars').innerHTML = Object.keys(votes).map(k => {
+        const pct = Math.round(votes[k]/total*100);
+        return `<div style="margin-bottom:15px"><div style="display:flex; justify-content:space-between; font-weight:800"><span>${labels[k]}</span><span>${votes[k]} vote${votes[k]===1?'':'s'}</span></div><div class="bar"><div class="bar-fill ${k==='support'?'':'med'}" style="width:${pct}%"></div></div></div>`;
+      }).join('');
+    }
+
+    function updateAll() {
+      updateTimeline();
+      updateAbnormality();
+      updateCriticality();
+      updateToyModel();
+    }
+
+    updateInterventionButtons();
+    renderVotes();
+    updateAll();
+  </script>
+</body>
+</html>
