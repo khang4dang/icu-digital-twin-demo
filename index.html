@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ICU Digital Twin Student Demo</title>
+  <title>ICU Digital Twin</title>
   <style>
     :root {
       --bg: #f6f8fb;
@@ -600,7 +600,7 @@
 
       <div class="sidebar-note">
         <strong>Note:</strong><br />
-        This demo uses simplified, de-identified teaching patterns inspired by ICU data. It is not a clinical tool and should not be used for medical decisions.
+        This demo uses simplified, de-identified patterns inspired by ICU data. It is not a clinical tool and should not be used for medical decisions.
       </div>
 
     </aside>
@@ -612,8 +612,7 @@
           <p id="sectionSubtitle">A journey from ICU data to patient-specific decision support.</p>
         </div>
         <div class="pill-row">
-          <span class="pill">Audience: Pringry High School</span>
-          <span class="pill">Part of the course: Explorations in Artificial Intelligence</span>
+          <span class="pill">Audience: The Pingry School' Students</span>
           <span class="pill">Visit date: May 27</span>
         </div>
       </div>
@@ -796,7 +795,7 @@
             <h3>Explore one ICU stay</h3>
             <p>Use the hour slider to move through a simplified ICU timeline. The chart and patient card update together.</p>
             <div class="slider-card">
-              <label for="patientSelect"><strong>Choose a teaching case</strong></label><br /><br />
+              <label for="patientSelect"><strong>Choose a case</strong></label><br /><br />
               <select id="patientSelect" class="select" aria-label="Choose patient case">
                 <option value="A">Patient A: shock-like state, responds to fluids</option>
                 <option value="B">Patient B: shock-like state, needs vasopressor support</option>
@@ -816,7 +815,7 @@
               <div style="display:flex; justify-content:space-between; gap:14px; align-items:flex-start">
                 <div>
                   <h3>Patient status at hour <span id="statusHour">0</span></h3>
-                  <p id="caseDescription">A simplified patient trajectory for teaching.</p>
+                  <p id="caseDescription">A simplified patient trajectory.</p>
                 </div>
                 <span id="statusRiskPill" class="risk-label risk-low">Low concern</span>
               </div>
@@ -885,7 +884,7 @@
             <div class="big-number"><span id="riskScoreText">0</span><span style="font-size:22px;color:var(--muted)"> / 100</span></div>
             <div class="meter" aria-label="Criticality meter"><div id="riskNeedle" class="needle"></div></div>
             <div style="display:flex; justify-content:space-between; color:var(--muted); font-weight:800; font-size:13px"><span>Low</span><span>Medium</span><span>High</span></div>
-            <p id="criticalityNarrative" class="lead" style="margin-top:18px">The patient currently appears low risk in this teaching example.</p>
+            <p id="criticalityNarrative" class="lead" style="margin-top:18px">The patient currently appears low risk in this example.</p>
           </div>
           <div class="card">
             <h3>Risk over time</h3>
@@ -935,7 +934,7 @@
       <section id="learning" class="section" data-title="How the AI Learns" data-subtitle="A simple pipeline from raw ICU data to digital twin signals.">
         <div class="card soft">
           <h3>Research pipeline</h3>
-          <p>For students, the project can be understood as six steps.</p>
+          <p>Six steps:</p>
           <div class="pipeline" style="margin-top:16px">
             <div class="pipe-card"><div class="num">1</div><strong>Collect data</strong><span>Vitals, labs, alarms, medications, procedures, and ICU stay information.</span></div>
             <div class="pipe-card"><div class="num">2</div><strong>Clean data</strong><span>Remove impossible values, handle missingness, and align measurements over time.</span></div>
@@ -949,21 +948,21 @@
         <div class="grid two" style="margin-top:18px">
           <div class="card blue">
             <h3>Try building a tiny risk score</h3>
-            <p>This is not the real model. It is a teaching toy: adjust the weights and see how the score changes for the current patient hour.</p>
+            <p>This is not the real model. It is an example: adjust the weights and see how the score changes for the current patient hour.</p>
             <div class="weight-row"><label for="wMap">Low blood pressure</label><input id="wMap" type="range" min="0" max="100" value="35" /><span id="wMapText">35</span></div>
             <div class="weight-row"><label for="wHr">Fast heart rate</label><input id="wHr" type="range" min="0" max="100" value="20" /><span id="wHrText">20</span></div>
             <div class="weight-row"><label for="wLac">High lactate</label><input id="wLac" type="range" min="0" max="100" value="35" /><span id="wLacText">35</span></div>
             <div class="weight-row"><label for="wUo">Low urine output</label><input id="wUo" type="range" min="0" max="100" value="10" /><span id="wUoText">10</span></div>
           </div>
           <div class="card green">
-            <h3>Toy model output</h3>
+            <h3>Example model output</h3>
             <div class="big-number"><span id="toyScore">0</span><span style="font-size:22px;color:var(--muted)"> / 100</span></div>
             <p id="toyNarrative" class="lead">Adjust the sliders to see how assumptions change the score.</p>
             <div class="note-box">Real AI models learn weights from data. But humans still need to ask: Are the data fair? Are the labels reliable? Does the score help clinicians?</div>
           </div>
         </div>
         <div class="speaker-note">
-          Suggested explanation: “In a real model, we do not manually set these weights. The computer learns from examples. But this toy version helps show an important idea: what we choose to measure and emphasize changes the final score.”
+          Suggested explanation: “In a real model, we do not manually set these weights. The computer learns from examples. But this example version helps show an important idea: what we choose to measure and emphasize changes the final score.”
         </div>
       </section>
 
@@ -994,13 +993,13 @@
         </div>
       </section>
 
-      <section id="amarel" class="section" data-title="Amarel Data Bridge" data-subtitle="How to replace the embedded teaching data with your real prepared outputs.">
+      <section id="amarel" class="section" data-title="Amarel Data Bridge" data-subtitle="How to replace the embedded data with your real prepared outputs.">
         <div class="grid two">
           <div class="card soft">
             <h3>Recommended safe workflow</h3>
             <p>Use Amarel to prepare small, de-identified demo files before the visit. Then load them into this interface. Avoid relying on live VPN/database access during the presentation.</p>
             <ol>
-              <li>Choose 1–3 representative ICU stays or synthetic teaching cases.</li>
+              <li>Choose 1–3 representative ICU stays or synthetic cases.</li>
               <li>Export hourly vitals/labs, abnormality scores, and criticality scores.</li>
               <li>Remove identifiers and shift time to relative hours.</li>
               <li>Use the exported JSON to replace the <code>demoData</code> object in this HTML file.</li>
@@ -1012,7 +1011,7 @@
   "patients": {
     "A": {
       "label": "Patient A: responds to fluids",
-      "description": "Teaching case summary",
+      "description": "Case summary",
       "hours": [0, 1, 2, ...],
       "map": [76, 75, 74, ...],
       "hr": [86, 88, 90, ...],
@@ -1044,7 +1043,7 @@ python export_student_demo_json.py \
 
         <div class="grid three" style="margin-top:18px">
           <div class="card green"><h3>Use real outputs</h3><p>Abnormality scores, criticality scores, and response labels can come from your current AID-TWIN pipeline.</p></div>
-          <div class="card yellow"><h3>Keep it small</h3><p>For teaching, a few well-chosen trajectories are better than a massive dataset.</p></div>
+          <div class="card yellow"><h3>Keep it small</h3><p>A few well-chosen trajectories are better than a massive dataset.</p></div>
           <div class="card red"><h3>Protect privacy</h3><p>Do not show subject IDs, admission IDs, dates, free text, or any raw identifier during the visit.</p></div>
         </div>
       </section>
@@ -1099,7 +1098,7 @@ python export_student_demo_json.py \
     };
 
     const metricInfo = {
-      map: {label:'MAP', unit:'mmHg', normal:'Usually concerning when low, especially below about 65 in this teaching demo.', min:50, max:85},
+      map: {label:'MAP', unit:'mmHg', normal:'Usually concerning when low, especially below about 65 in this demo.', min:50, max:85},
       hr: {label:'Heart Rate', unit:'bpm', normal:'A fast heart rate may signal stress, pain, fever, bleeding, shock, or other causes.', min:70, max:140},
       spo2: {label:'SpO₂', unit:'%', normal:'Lower oxygen saturation can be concerning, especially if it drops with other signals.', min:90, max:100},
       lactate: {label:'Lactate', unit:'mmol/L', normal:'Higher lactate can suggest poor perfusion or severe physiologic stress.', min:0.8, max:6.2},
@@ -1107,10 +1106,10 @@ python export_student_demo_json.py \
     };
 
     const interventions = [
-      { key:'fluids', title:'Give fluids', desc:'Try increasing circulating volume.', values:{map:'+9', hr:'-12', lactate:'-0.7', urine:'+12'}, goodA:true, textA:'The patient improves. This pattern suggests fluid responsiveness in the teaching scenario.', textB:'Only mild improvement. The patient may need additional support such as vasopressors or source control.' },
+      { key:'fluids', title:'Give fluids', desc:'Try increasing circulating volume.', values:{map:'+9', hr:'-12', lactate:'-0.7', urine:'+12'}, goodA:true, textA:'The patient improves. This pattern suggests fluid responsiveness in the scenario.', textB:'Only mild improvement. The patient may need additional support such as vasopressors or source control.' },
       { key:'vaso', title:'Start vasopressor', desc:'Support blood pressure with medication.', values:{map:'+12', hr:'-8', lactate:'-0.4', urine:'+5'}, goodA:true, textA:'Blood pressure improves, but this may not address the underlying cause by itself.', textB:'The patient improves more clearly. This pattern suggests pressure support was needed.' },
       { key:'blood', title:'Give blood products', desc:'Useful if bleeding or low hemoglobin is suspected.', values:{map:'+5', hr:'-5', lactate:'-0.2', urine:'+2'}, goodA:false, textA:'Limited response in this scenario because bleeding is not the main driver.', textB:'Limited response in this scenario. More information would be needed before choosing this.' },
-      { key:'sedation', title:'Reduce sedation', desc:'Consider medication-related low blood pressure.', values:{map:'+4', hr:'+2', lactate:'0.0', urine:'+1'}, goodA:false, textA:'Small change only. This does not look like the main cause in this teaching case.', textB:'Small change only. The patient remains unstable.' },
+      { key:'sedation', title:'Reduce sedation', desc:'Consider medication-related low blood pressure.', values:{map:'+4', hr:'+2', lactate:'0.0', urine:'+1'}, goodA:false, textA:'Small change only. This does not look like the main cause in this case.', textB:'Small change only. The patient remains unstable.' },
       { key:'infection', title:'Treat suspected infection', desc:'Antibiotics/source control if sepsis is suspected.', values:{map:'+3', hr:'-4', lactate:'-0.5', urine:'+3'}, goodA:true, textA:'Slow improvement may occur, but response is not immediate. It matters if infection is likely.', textB:'This may be necessary if sepsis is suspected, but pressure support is still needed now.' },
       { key:'wait', title:'Wait and monitor', desc:'Observe without immediate active intervention.', values:{map:'-4', hr:'+8', lactate:'+0.6', urine:'-5'}, goodA:false, textA:'The patient worsens. Waiting is risky in this simplified unstable state.', textB:'The patient worsens. The digital twin would keep warning that risk is rising.' }
     ];
@@ -1269,7 +1268,7 @@ python export_student_demo_json.py \
       document.getElementById('riskScoreText').textContent = risk;
       document.getElementById('riskNeedle').style.left = `calc(${risk}% - 2px)`;
       const lvl = riskLevel(risk);
-      let text = 'The patient currently appears low risk in this teaching example.';
+      let text = 'The patient currently appears low risk in this example.';
       if (risk >= 65) text = 'The patient has a high criticality signal. The dashboard suggests the care team should review the patient urgently.';
       else if (risk >= 35) text = 'The patient has a medium criticality signal. Several trends are moving in a concerning direction.';
       document.getElementById('criticalityNarrative').textContent = text;
@@ -1326,7 +1325,7 @@ python export_student_demo_json.py \
       const uoRisk = clamp((35-getValue('urine'))/25,0,1);
       const score = Math.round(100*(wMap*mapRisk + wHr*hrRisk + wLac*lacRisk + wUo*uoRisk)/total);
       document.getElementById('toyScore').textContent = score;
-      document.getElementById('toyNarrative').textContent = score >= 65 ? 'Your toy score marks this hour as high concern.' : score >= 35 ? 'Your toy score marks this hour as medium concern.' : 'Your toy score marks this hour as low concern.';
+      document.getElementById('toyNarrative').textContent = score >= 65 ? 'The score marks this hour as high concern.' : score >= 35 ? 'The score marks this hour as medium concern.' : 'The score marks this hour as low concern.';
     }
 
     ['wMap','wHr','wLac','wUo'].forEach(id => document.getElementById(id).addEventListener('input', updateToyModel));
@@ -1343,7 +1342,7 @@ python export_student_demo_json.py \
 
     function ethicsPrompt(kind) {
       const q = {
-        privacy: 'What information should never appear in a student demo, even if the data are used for research?',
+        privacy: 'What information should never be shared, even if the data are used for research?',
         bias: 'What could happen if an AI model works better for one group of patients than another?',
         human: 'Should clinicians be required to explain when they disagree with an AI warning?',
         alarms: 'Which is worse: too many false alarms, or one missed warning? Why?'
